@@ -1,0 +1,4 @@
+<% @hospitals.each do |hospital| %>
+  <h2> <%= hospital.name %> </h2>
+  <%= area_chart hospital.wait_times.pluck(:created_at, :value) %>
+<% end %>

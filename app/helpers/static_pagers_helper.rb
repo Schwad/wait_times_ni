@@ -1,0 +1,2 @@
+module StaticPagersHelper
+end
