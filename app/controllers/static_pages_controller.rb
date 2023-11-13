@@ -22,8 +22,4 @@ class StaticPagesController < ApplicationController
                                           .select('hospitals.name, DATE_TRUNC(\'month\', wait_times.created_at) AS month, AVG(wait_times.value) as avg_wait')
   end
 
-
-  def average_wait_times
-
-end
 end
