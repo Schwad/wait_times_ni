@@ -7,15 +7,15 @@ class StaticPagesController < ApplicationController
     @hospitals_average_wait_time = Hospital.joins(:wait_times)
                                        .group('hospitals.name')
                                        .select('hospitals.name, AVG(wait_times.value) AS avg_wait')
-    @days_of_week = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-    @data_by_day = @days_of_week.map do |day|
-      {
-        name: day,
-        data: Hospital.joins(:wait_times)
-                      .where('EXTRACT(DOW FROM wait_times.created_at)::INT = ?', @days_of_week.index(day))
-                      .group('hospitals.name')
-                      .average('wait_times.value')
-      }
+    @data_by_hospitals = @hospitals.map do |hospital|
+      data = (0..6).map do |wday|
+        wait_times_on_day = hospital.wait_times
+                                    .where('EXTRACT(DOW FROM created_at)::INT = ?', wday)
+                                    .average(:value)
+        [Date::DAYNAMES[wday], wait_times_on_day || 0]
+      end.to_h
+
+      { name: hospital.name, data: data }
     end
 
     @hospitals_trend_wait_times = Hospital.joins(:wait_times)
