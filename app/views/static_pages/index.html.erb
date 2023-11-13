@@ -9,7 +9,7 @@
 <%= line_chart @data_by_day %>
 <hr>
 <h1>Trend of wait times</h1>
-<%= line_chart @hospitals_trend_wait_times.map { |h| [[h.name, h.month], h.avg_wait] }.to_h %>
+<%= line_chart @hospitals_trend_wait_times.map { |h| [[h.name, h.day], h.avg_wait] }.to_h %>
 <hr>
 <h1>Live wait times</h1>
 <% @hospitals.each do |hospital| %>
