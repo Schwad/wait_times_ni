@@ -1,13 +1,13 @@
 class StaticPagesController < ApplicationController
   def index
     @hospitals = Hospital.all
-    @hospital_peak_wait_time = Hospital.joins(:wait_times)
+    @hospitals_peak_wait_time = Hospital.joins(:wait_times)
                                        .group('hospitals.name')
                                        .select('hospitals.name, MAX(wait_times.value) AS peak_wait')
     @hospitals_average_wait_time = Hospital.joins(:wait_times)
                                        .group('hospitals.name')
                                        .select('hospitals.name, AVG(wait_times.value) AS avg_wait')
-                                         @days_of_week = ("Sunday".."Saturday").to_a
+    @days_of_week = ("Sunday".."Saturday").to_a
     @data_by_day = @days_of_week.map do |day|
       {
         name: day,
