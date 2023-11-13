@@ -16,6 +16,7 @@ class StaticPagesController < ApplicationController
                       .group('hospitals.name')
                       .average('wait_times.value')
       }
+    end
 
     @hospitals_trend_wait_times = Hospital.joins(:wait_times)
                                           .group('hospitals.name, DATE_TRUNC(\'month\', wait_times.created_at)')
