@@ -18,6 +18,17 @@ class StaticPagesController < ApplicationController
       { name: hospital.name, data: data }
     end
 
+    @data_by_hospitals_hour = @hospitals.map do |hospital|
+      data = (0..23).map do |hour|
+        wait_times_on_hour = hospital.wait_times
+                                    .where('EXTRACT(HOUR FROM created_at)::INT = ?', hour)
+                                    .average(:value)
+        [hour, wait_times_on_hour || 0]
+      end.to_h
+
+      { name: hospital.name, data: data }
+    end
+
     @hospitals_trend_wait_times = Hospital.joins(:wait_times)
                                           .group('hospitals.name, DATE_TRUNC(\'day\', wait_times.created_at)')
                                           .select('hospitals.name, DATE_TRUNC(\'day\', wait_times.created_at) AS day, AVG(wait_times.value) as avg_wait')
