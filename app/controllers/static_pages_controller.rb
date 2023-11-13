@@ -29,6 +29,13 @@ class StaticPagesController < ApplicationController
       { name: hospital.name, data: data }
     end
 
+    @data_by_hour_aggregate = (0..23).map do |hour|
+      average_wait_time = WaitTime.joins(:hospital)
+                                  .where('EXTRACT(HOUR FROM wait_times.created_at)::INT = ?', hour)
+                                  .average(:value)
+      [hour, average_wait_time || 0]
+    end.to_h
+
     @hospitals_trend_wait_times = Hospital.joins(:wait_times)
                                           .group('hospitals.name, DATE_TRUNC(\'day\', wait_times.created_at)')
                                           .select('hospitals.name, DATE_TRUNC(\'day\', wait_times.created_at) AS day, AVG(wait_times.value) as avg_wait')
