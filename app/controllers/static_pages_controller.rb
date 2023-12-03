@@ -1,4 +1,5 @@
 class StaticPagesController < ApplicationController
+  caches_page :index, expires_in: 15.minutes
   caches_action :index, expires_in: 15.minutes
   def index
     @hospitals = Hospital.all
