@@ -31,5 +31,24 @@ class DataExtractionJob < ApplicationJob
       hospital.wait_times.create(value: wait_time_value)
     end
 
+
+    # Refresh the view cache
+    url = URI.parse('https://12qwd.hatchboxapp.com/')
+    http = Net::HTTP.new(url.host, url.port)
+    http.use_ssl = true if url.scheme == 'https'
+
+    # Create a GET request
+    request = Net::HTTP::Get.new(url.path)
+
+    # Send the request
+    response = http.request(request)
+
+    # Check the response code
+    if response.code.to_i == 200
+      puts "Successfully pinged the URL."
+    else
+      puts "Failed to ping the URL. Response code: #{response.code}"
+    end
+
   end
 end
