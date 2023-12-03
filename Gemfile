@@ -9,6 +9,7 @@ gem "rails", "~> 7.1.2"
 gem "sprockets-rails"
 
 gem 'actionpack-action_caching'
+gem "actionpack-page_caching"
 
 # Use postgresql as the database for Active Record
 gem "pg", "~> 1.1"
