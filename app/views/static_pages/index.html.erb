@@ -1,3 +1,25 @@
+<h1>Peak wait times</h1>
+<%= bar_chart @hospitals_peak_wait_time.map { |h| [h.name, h.peak_wait] }.to_h %>
+<hr>
+<h1>Longest average wait times</h1>
+<%= bar_chart @hospitals_average_wait_time.map { |h| [h.name, h.avg_wait] }.to_h %>
+<hr>
+<h1>Fluctuations (by day)</h1>
+<em>How wait times fluctuate during a week</em>
+<%= line_chart @data_by_hospitals %>
+<hr>
+<h1>Fluctuations (by hour)</h1>
+<em>How wait times fluctuate during a day</em>
+<%= line_chart @data_by_hospitals_hour %>
+<hr>
+<h1>Fluctuations - all hospitals (by hour)</h1>
+<em>How wait times fluctuate during a day</em>
+<%= line_chart @data_by_hour_aggregate %>
+<hr>
+<h1>Trend of wait times</h1>
+<%= line_chart @hospitals_trend_wait_times.map { |h| [[h.name, h.day], h.avg_wait] }.to_h %>
+<hr>
+<h1>Live wait times</h1>
 <% @hospitals.each do |hospital| %>
   <h2> <%= hospital.name %> </h2>
   <%= area_chart hospital.wait_times.pluck(:created_at, :value) %>
