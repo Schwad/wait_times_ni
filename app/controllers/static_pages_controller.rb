@@ -1,5 +1,5 @@
 class StaticPagesController < ApplicationController
-  caches_action :index, expires_in: 15.minutes
+  caches_page :index, expires_in: 15.minutes
   def index
     @hospitals = Hospital.all
     @hospitals_peak_wait_time = Hospital.joins(:wait_times)
