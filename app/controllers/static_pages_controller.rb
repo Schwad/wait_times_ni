@@ -1,11 +1,13 @@
 class StaticPagesController < ApplicationController
   caches_page :index, expires_in: 15.minutes
   def index
-    @hospitals = Hospital.all
+    @hospitals = Hospital.all.where('wait_times.created_at > ?', 4.weeks.ago).distinct
     @hospitals_peak_wait_time = Hospital.joins(:wait_times)
+                                        .where('wait_times.created_at > ?', 4.weeks.ago)
                                        .group('hospitals.name')
                                        .select('hospitals.name, MAX(wait_times.value) AS peak_wait')
     @hospitals_average_wait_time = Hospital.joins(:wait_times)
+                                        .where('wait_times.created_at > ?', 4.weeks.ago)
                                        .group('hospitals.name')
                                        .select('hospitals.name, AVG(wait_times.value) AS avg_wait')
     @data_by_hospitals = @hospitals.map do |hospital|
@@ -38,6 +40,7 @@ class StaticPagesController < ApplicationController
     end.to_h
 
     @hospitals_trend_wait_times = Hospital.joins(:wait_times)
+                                          .where('wait_times.created_at > ?', 4.weeks.ago)
                                           .group('hospitals.name, DATE_TRUNC(\'day\', wait_times.created_at)')
                                           .select('hospitals.name, DATE_TRUNC(\'day\', wait_times.created_at) AS day, AVG(wait_times.value) as avg_wait')
   end
