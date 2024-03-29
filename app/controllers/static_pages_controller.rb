@@ -1,7 +1,7 @@
 class StaticPagesController < ApplicationController
   caches_page :index, expires_in: 15.minutes
   def index
-    @hospitals = Hospital.all.where('wait_times.created_at > ?', 4.weeks.ago).distinct
+    @hospitals = Hospital.all
     @hospitals_peak_wait_time = Hospital.joins(:wait_times)
                                         .where('wait_times.created_at > ?', 4.weeks.ago)
                                        .group('hospitals.name')
