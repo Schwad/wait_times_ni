@@ -1,6 +1,12 @@
 source "https://rubygems.org"
 
-ruby "3.2.2"
+ruby ">= 3.2.0"
+
+# Required for Ruby 3.4+ (now bundled gems)
+gem "nkf"
+gem "mutex_m"
+gem "base64"
+gem "bigdecimal"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 7.1.2"

@@ -1,0 +1,121 @@
+<div class="controls">
+  <div style="display: flex; align-items: center; gap: 10px;">
+    <label>Time Range:</label>
+    <%= link_to "7 Days", trends_path(range: "7d"), class: "btn #{@range == '7d' ? 'active' : ''}" %>
+    <%= link_to "30 Days", trends_path(range: "30d"), class: "btn #{@range == '30d' ? 'active' : ''}" %>
+    <%= link_to "90 Days", trends_path(range: "90d"), class: "btn #{@range == '90d' ? 'active' : ''}" %>
+    <%= link_to "1 Year", trends_path(range: "1y"), class: "btn #{@range == '1y' ? 'active' : ''}" %>
+    <%= link_to "All Time", trends_path(range: "all"), class: "btn #{@range == 'all' ? 'active' : ''}" %>
+  </div>
+</div>
+
+<div class="card">
+  <h2>📈 Wait Time Trends - All Hospitals</h2>
+  <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.9rem;">
+    Daily average wait times from <%= @start_date.strftime("%b %d, %Y") %> to <%= @end_date.strftime("%b %d, %Y") %>
+  </p>
+  <div id="trends-chart" style="min-height: 450px;"></div>
+</div>
+
+<div class="card" style="margin-top: 20px;">
+  <h2>📊 Summary Statistics</h2>
+  <div class="grid grid-4">
+    <% @hospitals.each do |hospital| %>
+      <% stats = hospital.daily_stats.for_date_range(@start_date, @end_date) %>
+      <% next if stats.empty? %>
+      <div class="stat-card">
+        <h3><%= hospital.name %></h3>
+        <div class="value" style="font-size: 1.5rem;"><%= stats.average(:avg_wait)&.round(0) || '—' %></div>
+        <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 5px;">
+          avg min wait
+        </div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 8px;">
+          Peak: <strong><%= stats.maximum(:max_wait) || '—' %></strong> min
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+document.addEventListener('turbo:load', function() {
+  var chartEl = document.querySelector("#trends-chart");
+  if (!chartEl) return;
+  chartEl.innerHTML = ''; // Clear any existing chart
+  var seriesData = <%= raw @daily_trends.map { |t| { name: t[:name], data: t[:data].map { |date, val| [date.to_time.to_i * 1000, val&.round(1)] } } }.to_json %>;
+  
+  var options = {
+    series: seriesData,
+    chart: {
+      type: 'line',
+      height: 450,
+      zoom: {
+        type: 'x',
+        enabled: true,
+        autoScaleYaxis: true
+      },
+      toolbar: {
+        autoSelected: 'zoom',
+        tools: {
+          download: true,
+          selection: true,
+          zoom: true,
+          zoomin: true,
+          zoomout: true,
+          pan: true,
+          reset: true
+        }
+      },
+      animations: {
+        enabled: true,
+        easing: 'easeinout',
+        speed: 800
+      }
+    },
+    colors: ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1'],
+    stroke: {
+      width: 2,
+      curve: 'smooth'
+    },
+    dataLabels: {
+      enabled: false
+    },
+    markers: {
+      size: 0,
+      hover: {
+        size: 5
+      }
+    },
+    xaxis: {
+      type: 'datetime',
+      labels: {
+        datetimeUTC: false
+      }
+    },
+    yaxis: {
+      title: {
+        text: 'Wait Time (minutes)'
+      },
+      min: 0
+    },
+    tooltip: {
+      shared: true,
+      intersect: false,
+      x: {
+        format: 'dd MMM yyyy'
+      },
+      y: {
+        formatter: function(val) {
+          return val ? val.toFixed(0) + ' min' : 'No data';
+        }
+      }
+    },
+    legend: {
+      position: 'top',
+      horizontalAlign: 'left'
+    }
+  };
+
+  new ApexCharts(document.querySelector("#trends-chart"), options).render();
+});
+</script>

@@ -1,0 +1,129 @@
+<div class="controls">
+  <div style="display: flex; align-items: center; gap: 10px;">
+    <label>Time Range:</label>
+    <%= link_to "7 Days", dashboard_path(range: "7d"), class: "btn #{@range == '7d' ? 'active' : ''}" %>
+    <%= link_to "30 Days", dashboard_path(range: "30d"), class: "btn #{@range == '30d' ? 'active' : ''}" %>
+    <%= link_to "90 Days", dashboard_path(range: "90d"), class: "btn #{@range == '90d' ? 'active' : ''}" %>
+    <%= link_to "1 Year", dashboard_path(range: "1y"), class: "btn #{@range == '1y' ? 'active' : ''}" %>
+  </div>
+</div>
+
+<h2 style="margin-bottom: 20px; font-size: 1.5rem;">📍 Current Wait Times</h2>
+
+<div class="live-grid">
+  <% @current_status.each do |status| %>
+    <% wait = status[:wait_time] || 0 %>
+    <% status_class = wait < 60 ? 'status-good' : (wait < 120 ? 'status-warning' : 'status-danger') %>
+    <% value_class = wait < 60 ? 'good' : (wait < 120 ? 'warning' : 'danger') %>
+    
+    <div class="hospital-card <%= status_class %>">
+      <div class="hospital-name"><%= status[:hospital].name %></div>
+      <div class="wait-time <%= value_class %>">
+        <%= wait || '—' %><span style="font-size: 1rem; font-weight: 400;"> min</span>
+      </div>
+      <div class="wait-label">
+        Current wait time
+        <% if status[:trend] == :rising %>
+          <span class="trend-indicator trend-rising">↑ Rising</span>
+        <% elsif status[:trend] == :falling %>
+          <span class="trend-indicator trend-falling">↓ Falling</span>
+        <% else %>
+          <span class="trend-indicator trend-stable">→ Stable</span>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<div class="grid grid-2" style="margin-top: 30px;">
+  <div class="card">
+    <h2>📊 Peak Wait Times (<%= @range %>)</h2>
+    <div id="peak-chart" class="chart-container"></div>
+  </div>
+  
+  <div class="card">
+    <h2>📈 Average Wait Times (<%= @range %>)</h2>
+    <div id="avg-chart" class="chart-container"></div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('turbo:load', function() {
+  // Clear any existing charts (prevents duplicates on Turbo navigation)
+  if (document.querySelector("#peak-chart")._chart) {
+    document.querySelector("#peak-chart")._chart.destroy();
+  }
+  if (document.querySelector("#avg-chart")._chart) {
+    document.querySelector("#avg-chart")._chart.destroy();
+  }
+  // Peak Wait Times Chart
+  var peakOptions = {
+    series: [{
+      name: 'Peak Wait (min)',
+      data: <%= raw @peak_stats.map { |s| s.peak_wait.to_i }.to_json %>
+    }],
+    chart: {
+      type: 'bar',
+      height: 320,
+      toolbar: { show: false }
+    },
+    colors: ['#ef4444'],
+    plotOptions: {
+      bar: {
+        borderRadius: 6,
+        horizontal: true,
+      }
+    },
+    dataLabels: {
+      enabled: true,
+      formatter: function(val) { return val + ' min'; }
+    },
+    xaxis: {
+      categories: <%= raw @peak_stats.map(&:name).to_json %>,
+      labels: { formatter: function(val) { return val + ' min'; } }
+    },
+    tooltip: {
+      y: { formatter: function(val) { return val + ' minutes'; } }
+    }
+  };
+  
+  var peakChart = new ApexCharts(document.querySelector("#peak-chart"), peakOptions);
+  document.querySelector("#peak-chart")._chart = peakChart;
+  peakChart.render();
+  
+  // Average Wait Times Chart
+  var avgOptions = {
+    series: [{
+      name: 'Avg Wait (min)',
+      data: <%= raw @avg_stats.map { |s| s.avg_wait.to_f.round(1) }.to_json %>
+    }],
+    chart: {
+      type: 'bar',
+      height: 320,
+      toolbar: { show: false }
+    },
+    colors: ['#2563eb'],
+    plotOptions: {
+      bar: {
+        borderRadius: 6,
+        horizontal: true,
+      }
+    },
+    dataLabels: {
+      enabled: true,
+      formatter: function(val) { return val.toFixed(0) + ' min'; }
+    },
+    xaxis: {
+      categories: <%= raw @avg_stats.map(&:name).to_json %>,
+      labels: { formatter: function(val) { return val + ' min'; } }
+    },
+    tooltip: {
+      y: { formatter: function(val) { return val.toFixed(1) + ' minutes'; } }
+    }
+  };
+  
+  var avgChart = new ApexCharts(document.querySelector("#avg-chart"), avgOptions);
+  document.querySelector("#avg-chart")._chart = avgChart;
+  avgChart.render();
+});
+</script>

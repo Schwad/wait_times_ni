@@ -1,16 +1,280 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>WaitTimesNi</title>
+    <title>Wait Times NI - Hospital A&E Wait Times</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="turbo-cache-control" content="no-preview">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+    
+    <!-- ApexCharts for modern interactive charts -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    
+    <style>
+      :root {
+        --primary: #2563eb;
+        --primary-dark: #1d4ed8;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --bg: #f8fafc;
+        --card-bg: #ffffff;
+        --text: #1e293b;
+        --text-muted: #64748b;
+        --border: #e2e8f0;
+      }
+      
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+      }
+      
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      
+      header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        padding: 30px 20px;
+        margin-bottom: 30px;
+      }
+      
+      header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+      }
+      
+      header p {
+        opacity: 0.9;
+        font-size: 1.1rem;
+      }
+      
+      nav {
+        background: var(--card-bg);
+        border-bottom: 1px solid var(--border);
+        padding: 0 20px;
+        display: flex;
+        gap: 5px;
+        overflow-x: auto;
+      }
+      
+      nav a {
+        padding: 15px 20px;
+        text-decoration: none;
+        color: var(--text-muted);
+        font-weight: 500;
+        border-bottom: 3px solid transparent;
+        transition: all 0.2s;
+        white-space: nowrap;
+      }
+      
+      nav a:hover, nav a.active {
+        color: var(--primary);
+        border-bottom-color: var(--primary);
+      }
+      
+      .card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        padding: 24px;
+        margin-bottom: 20px;
+      }
+      
+      .card h2 {
+        font-size: 1.25rem;
+        margin-bottom: 20px;
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      
+      .grid {
+        display: grid;
+        gap: 20px;
+      }
+      
+      .grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+      .grid-3 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+      .grid-4 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+      
+      .stat-card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+      
+      .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      }
+      
+      .stat-card h3 {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+        font-weight: 500;
+      }
+      
+      .stat-card .value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text);
+      }
+      
+      .stat-card .value.good { color: var(--success); }
+      .stat-card .value.warning { color: var(--warning); }
+      .stat-card .value.danger { color: var(--danger); }
+      
+      .trend-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.875rem;
+        padding: 4px 8px;
+        border-radius: 20px;
+      }
+      
+      .trend-rising { background: #fef2f2; color: var(--danger); }
+      .trend-falling { background: #f0fdf4; color: var(--success); }
+      .trend-stable { background: #f8fafc; color: var(--text-muted); }
+      
+      .controls {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+        padding: 15px;
+        background: var(--card-bg);
+        border-radius: 8px;
+      }
+      
+      .controls label {
+        font-weight: 500;
+        color: var(--text-muted);
+        font-size: 0.875rem;
+      }
+      
+      .btn {
+        padding: 8px 16px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--card-bg);
+        color: var(--text);
+        cursor: pointer;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+      }
+      
+      .btn:hover { background: var(--bg); }
+      .btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+      
+      select, input[type="date"] {
+        padding: 8px 12px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        font-size: 0.875rem;
+        background: white;
+      }
+      
+      .chart-container {
+        min-height: 350px;
+        position: relative;
+      }
+      
+      .live-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+      }
+      
+      .hospital-card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        border-left: 4px solid var(--primary);
+      }
+      
+      .hospital-card.status-good { border-left-color: var(--success); }
+      .hospital-card.status-warning { border-left-color: var(--warning); }
+      .hospital-card.status-danger { border-left-color: var(--danger); }
+      
+      .hospital-name {
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: 10px;
+      }
+      
+      .wait-time {
+        font-size: 2.5rem;
+        font-weight: 700;
+        line-height: 1;
+      }
+      
+      .wait-label {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        margin-top: 5px;
+      }
+      
+      footer {
+        text-align: center;
+        padding: 40px 20px;
+        color: var(--text-muted);
+        font-size: 0.875rem;
+      }
+      
+      footer a {
+        color: var(--primary);
+        text-decoration: none;
+      }
+      
+      @media (max-width: 768px) {
+        header h1 { font-size: 1.5rem; }
+        .stat-card .value { font-size: 1.5rem; }
+        nav a { padding: 12px 15px; font-size: 0.875rem; }
+      }
+    </style>
   </head>
 
   <body>
-    <%= yield %>
+    <header>
+      <div class="container">
+        <h1>🏥 Wait Times NI</h1>
+        <p>Real-time A&E wait times across Northern Ireland hospitals</p>
+      </div>
+    </header>
+    
+    <nav>
+      <div class="container" style="display: flex; gap: 5px;">
+        <%= link_to "Live Status", dashboard_path, class: "#{controller_name == 'dashboard' && action_name == 'index' ? 'active' : ''}" %>
+        <%= link_to "Trends", trends_path, class: "#{action_name == 'trends' ? 'active' : ''}" %>
+        <%= link_to "Compare", compare_path, class: "#{action_name == 'compare' ? 'active' : ''}" %>
+        <%= link_to "Heatmap", heatmap_path, class: "#{action_name == 'heatmap' ? 'active' : ''}" %>
+      </div>
+    </nav>
+
+    <main class="container">
+      <%= yield %>
+    </main>
+    
+    <footer>
+      <p>Data sourced from <a href="https://www.nidirect.gov.uk/articles/emergency-department-average-waiting-times" target="_blank">NI Direct</a> • Updated every 15 minutes</p>
+      <p style="margin-top: 10px;">Built with ❤️ by <a href="https://schwadlabs.com" target="_blank">Schwad Labs</a></p>
+    </footer>
   </body>
 </html>

@@ -1,0 +1,111 @@
+<div class="controls">
+  <%= form_tag heatmap_path, method: :get, style: "display: flex; gap: 15px; align-items: center;" do %>
+    <label>Select Hospital:</label>
+    <%= select_tag :hospital_id, options_from_collection_for_select(@hospitals, :id, :name, @selected_hospital.id), onchange: "this.form.submit()" %>
+  <% end %>
+</div>
+
+<div class="card">
+  <h2>🗓️ Wait Time Heatmap - <%= @selected_hospital.name %></h2>
+  <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.9rem;">
+    Average wait times by day of week and hour. Darker colors indicate longer waits.
+  </p>
+  <div id="heatmap-chart" style="min-height: 350px;"></div>
+</div>
+
+<div class="grid grid-2" style="margin-top: 20px;">
+  <div class="card">
+    <h2>📊 Best Times to Visit</h2>
+    <div style="margin-top: 15px;">
+      <% best_times = @heatmap_data.sort_by { |d| d[:v] }.first(5) %>
+      <% best_times.each_with_index do |time, idx| %>
+        <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border);">
+          <span>
+            <span style="color: var(--success); font-weight: 600;"><%= idx + 1 %>.</span>
+            <%= time[:y] %> at <%= time[:x] %>:00
+          </span>
+          <span style="font-weight: 600; color: var(--success);"><%= time[:v] %> min</span>
+        </div>
+      <% end %>
+    </div>
+  </div>
+  
+  <div class="card">
+    <h2>⚠️ Busiest Times</h2>
+    <div style="margin-top: 15px;">
+      <% worst_times = @heatmap_data.sort_by { |d| -d[:v] }.first(5) %>
+      <% worst_times.each_with_index do |time, idx| %>
+        <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border);">
+          <span>
+            <span style="color: var(--danger); font-weight: 600;"><%= idx + 1 %>.</span>
+            <%= time[:y] %> at <%= time[:x] %>:00
+          </span>
+          <span style="font-weight: 600; color: var(--danger);"><%= time[:v] %> min</span>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('turbo:load', function() {
+  var chartEl = document.querySelector("#heatmap-chart");
+  if (!chartEl) return;
+  chartEl.innerHTML = ''; // Clear any existing chart
+  var rawData = <%= raw @heatmap_data.to_json %>;
+  
+  // Group by day
+  var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  var series = days.map(function(day) {
+    var dayData = rawData.filter(function(d) { return d.y === day; });
+    return {
+      name: day,
+      data: dayData.map(function(d) { return { x: d.x + ':00', y: d.v }; })
+    };
+  });
+  
+  var options = {
+    series: series,
+    chart: {
+      type: 'heatmap',
+      height: 350,
+      toolbar: { show: false }
+    },
+    dataLabels: {
+      enabled: true,
+      style: {
+        colors: ['#fff'],
+        fontSize: '10px'
+      }
+    },
+    colors: ["#2563eb"],
+    plotOptions: {
+      heatmap: {
+        shadeIntensity: 0.5,
+        colorScale: {
+          ranges: [
+            { from: 0, to: 30, name: 'Low', color: '#10b981' },
+            { from: 31, to: 60, name: 'Medium', color: '#f59e0b' },
+            { from: 61, to: 120, name: 'High', color: '#ef4444' },
+            { from: 121, to: 500, name: 'Very High', color: '#7f1d1d' }
+          ]
+        }
+      }
+    },
+    xaxis: {
+      type: 'category',
+      title: { text: 'Hour of Day' }
+    },
+    yaxis: {
+      title: { text: 'Day of Week' }
+    },
+    tooltip: {
+      y: {
+        formatter: function(val) { return val + ' minutes avg wait'; }
+      }
+    }
+  };
+
+  new ApexCharts(document.querySelector("#heatmap-chart"), options).render();
+});
+</script>

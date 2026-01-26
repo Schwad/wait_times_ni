@@ -1,11 +1,17 @@
 Rails.application.routes.draw do
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
-  root to: "static_pages#index"
+  # New dashboard
+  root to: "dashboard#index"
+  
+  get "dashboard", to: "dashboard#index", as: :dashboard
+  get "trends", to: "dashboard#trends", as: :trends
+  get "compare", to: "dashboard#compare", as: :compare
+  get "heatmap", to: "dashboard#heatmap", as: :heatmap
+  get "live", to: "dashboard#live", as: :live
+  get "api/data", to: "dashboard#api_data", as: :api_data
+  
+  # Legacy route (keep old static pages working)
+  get "legacy", to: "static_pages#index", as: :legacy
 
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
+  # Health check
   get "up" => "rails/health#show", as: :rails_health_check
-
-  # Defines the root path route ("/")
-  # root "posts#index"
 end

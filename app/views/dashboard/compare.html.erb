@@ -1,0 +1,116 @@
+<div class="controls">
+  <%= form_tag compare_path, method: :get, style: "display: flex; gap: 15px; flex-wrap: wrap; align-items: center;" do %>
+    <div>
+      <label style="display: block; margin-bottom: 5px;">Select Hospitals to Compare:</label>
+      <% @hospitals.each do |hospital| %>
+        <label style="margin-right: 15px; cursor: pointer;">
+          <%= check_box_tag "hospital_ids[]", hospital.id, @selected_ids.include?(hospital.id), style: "margin-right: 5px;" %>
+          <%= hospital.name %>
+        </label>
+      <% end %>
+    </div>
+    
+    <div>
+      <label style="display: block; margin-bottom: 5px;">Time Range:</label>
+      <%= select_tag :range, options_for_select([
+        ["7 Days", "7d"],
+        ["30 Days", "30d"],
+        ["90 Days", "90d"],
+        ["1 Year", "1y"],
+        ["All Time", "all"]
+      ], @range) %>
+    </div>
+    
+    <%= submit_tag "Compare", class: "btn active" %>
+  <% end %>
+</div>
+
+<div class="card">
+  <h2>⚖️ Hospital Comparison</h2>
+  <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.9rem;">
+    Comparing <%= @selected_hospitals.map(&:name).to_sentence %>
+  </p>
+  <div id="compare-chart" style="min-height: 400px;"></div>
+</div>
+
+<div class="grid grid-3" style="margin-top: 20px;">
+  <% @selected_hospitals.each do |hospital| %>
+    <% stats = hospital.daily_stats.for_date_range(@start_date, @end_date) %>
+    <div class="card">
+      <h2 style="font-size: 1rem;"><%= hospital.name %></h2>
+      <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+        <div>
+          <div style="color: var(--text-muted); font-size: 0.75rem;">Average</div>
+          <div style="font-size: 1.5rem; font-weight: 700;"><%= stats.average(:avg_wait)&.round(0) || '—' %> <span style="font-size: 0.875rem; font-weight: 400;">min</span></div>
+        </div>
+        <div>
+          <div style="color: var(--text-muted); font-size: 0.75rem;">Peak</div>
+          <div style="font-size: 1.5rem; font-weight: 700;"><%= stats.maximum(:max_wait) || '—' %> <span style="font-size: 0.875rem; font-weight: 400;">min</span></div>
+        </div>
+        <div>
+          <div style="color: var(--text-muted); font-size: 0.75rem;">Lowest</div>
+          <div style="font-size: 1.5rem; font-weight: 700;"><%= stats.minimum(:min_wait) || '—' %> <span style="font-size: 0.875rem; font-weight: 400;">min</span></div>
+        </div>
+        <div>
+          <div style="color: var(--text-muted); font-size: 0.75rem;">Data Points</div>
+          <div style="font-size: 1.5rem; font-weight: 700;"><%= stats.sum(:sample_count) %></div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<script>
+document.addEventListener('turbo:load', function() {
+  var chartEl = document.querySelector("#compare-chart");
+  if (!chartEl) return;
+  chartEl.innerHTML = ''; // Clear any existing chart
+  var seriesData = <%= raw @comparison_data.map { |t| { name: t[:name], data: t[:data].map { |date, val| [date.to_time.to_i * 1000, val&.round(1)] } } }.to_json %>;
+  
+  var options = {
+    series: seriesData,
+    chart: {
+      type: 'area',
+      height: 400,
+      zoom: { enabled: true },
+      toolbar: { show: true }
+    },
+    colors: ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
+    stroke: {
+      width: 2,
+      curve: 'smooth'
+    },
+    fill: {
+      type: 'gradient',
+      gradient: {
+        shadeIntensity: 1,
+        opacityFrom: 0.4,
+        opacityTo: 0.1,
+      }
+    },
+    dataLabels: { enabled: false },
+    xaxis: {
+      type: 'datetime',
+      labels: { datetimeUTC: false }
+    },
+    yaxis: {
+      title: { text: 'Wait Time (minutes)' },
+      min: 0
+    },
+    tooltip: {
+      shared: true,
+      x: { format: 'dd MMM yyyy' },
+      y: {
+        formatter: function(val) {
+          return val ? val.toFixed(0) + ' min' : 'No data';
+        }
+      }
+    },
+    legend: {
+      position: 'top'
+    }
+  };
+
+  new ApexCharts(document.querySelector("#compare-chart"), options).render();
+});
+</script>
