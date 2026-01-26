@@ -31,7 +31,8 @@ namespace :stats do
     
     # Bulk insert hourly stats using SQL aggregation
     puts "  Aggregating hourly stats..."
-    ActiveRecord::Base.connection.execute(<<~SQL)
+    # Using interpolation to avoid quoting issues with 'hour' in DATE_TRUNC
+    ActiveRecord::Base.connection.execute(%{
       INSERT INTO hourly_stats (hospital_id, hour, min_wait, max_wait, avg_wait, sample_count, created_at, updated_at)
       SELECT 
         hospital_id,
@@ -51,7 +52,7 @@ namespace :stats do
         avg_wait = EXCLUDED.avg_wait,
         sample_count = EXCLUDED.sample_count,
         updated_at = NOW()
-    SQL
+    })
     puts "    Hourly stats: #{HourlyStat.count}"
     
     puts "\nAggregation complete!"
