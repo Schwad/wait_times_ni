@@ -27,7 +27,8 @@ class DataExtractionJob < ApplicationJob
       hospital_name = data[0]
       wait_time_value = data[1].to_i
 
-      hospital = Hospital.find_or_create_by(name: hospital_name)
+      # Use the mapper to normalize hospital names and consolidate variants
+      hospital = HospitalNameMapper.find_or_create_hospital(hospital_name)
       hospital.wait_times.create(value: wait_time_value)
     end
 
