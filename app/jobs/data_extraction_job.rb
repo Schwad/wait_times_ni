@@ -32,6 +32,8 @@ class DataExtractionJob < ApplicationJob
       hospital.wait_times.create(value: wait_time_value)
     end
 
+    # Aggregate stats for current hour and today
+    aggregate_current_stats
 
     # Refresh the view cache
     url = URI.parse('https://12qwd.hatchboxapp.com/')
@@ -51,5 +53,20 @@ class DataExtractionJob < ApplicationJob
       puts "Failed to ping the URL. Response code: #{response.code}"
     end
 
+  end
+
+  private
+
+  def aggregate_current_stats
+    today = Date.current
+    current_hour = Time.current.beginning_of_hour
+
+    Hospital.find_each do |hospital|
+      # Update daily aggregation for today
+      DailyStat.aggregate_for_hospital(hospital, today)
+      
+      # Update hourly aggregation for current hour
+      HourlyStat.aggregate_for_hospital(hospital, current_hour)
+    end
   end
 end
