@@ -81,3 +81,7 @@ end
 gem "chartkick"
 
 # gem 'rack-mini-profiler'
+
+# Error monitoring
+gem "sentry-ruby"
+gem "sentry-rails"
