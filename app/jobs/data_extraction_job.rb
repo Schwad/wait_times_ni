@@ -2,12 +2,40 @@
 class DataExtractionJob < ApplicationJob
   queue_as :default
 
+  # Rotate user agents to avoid bot detection
+  USER_AGENTS = [
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0'
+  ].freeze
+
   def perform
     require 'mechanize'
     require 'nokogiri'
 
     url = 'https://www.nidirect.gov.uk/articles/emergency-department-average-waiting-times'
     agent = Mechanize.new
+    
+    # Set realistic browser headers to avoid 403
+    agent.user_agent = USER_AGENTS.sample
+    agent.request_headers = {
+      'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+      'Accept-Language' => 'en-GB,en;q=0.9',
+      'Accept-Encoding' => 'gzip, deflate, br',
+      'Connection' => 'keep-alive',
+      'Upgrade-Insecure-Requests' => '1',
+      'Cache-Control' => 'max-age=0'
+    }
+    
+    # Optional proxy support via ENV
+    # Set PROXY_URL=http://user:pass@proxy.example.com:8080
+    if ENV['PROXY_URL'].present?
+      proxy = URI.parse(ENV['PROXY_URL'])
+      agent.set_proxy(proxy.host, proxy.port, proxy.user, proxy.password)
+      Rails.logger.info "Using proxy: #{proxy.host}:#{proxy.port}"
+    end
+    
     page = agent.get(url)
 
     # Find the table with the specified ID
