@@ -24,7 +24,9 @@ class DataExtractionJob < ApplicationJob
     require 'mechanize'
     require 'nokogiri'
 
-    url = 'https://www.nidirect.gov.uk/articles/emergency-department-average-waiting-times'
+    # Use Cloudflare Worker proxy to avoid IP blocking
+    # The worker fetches from different edge IPs each time
+    url = 'https://ni-waittimes-proxy.schwad.workers.dev'
     agent = Mechanize.new
     
     # Set realistic browser headers to avoid 403
