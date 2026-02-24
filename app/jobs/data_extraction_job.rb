@@ -31,10 +31,11 @@ class DataExtractionJob < ApplicationJob
     
     # Set realistic browser headers to avoid 403
     agent.user_agent = USER_AGENTS.sample
+    # Note: Don't request brotli (br) - Mechanize doesn't support it
     agent.request_headers = {
       'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
       'Accept-Language' => 'en-GB,en;q=0.9',
-      'Accept-Encoding' => 'gzip, deflate, br',
+      'Accept-Encoding' => 'gzip, deflate',
       'Connection' => 'keep-alive',
       'Upgrade-Insecure-Requests' => '1',
       'Cache-Control' => 'max-age=0'
