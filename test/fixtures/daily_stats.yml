@@ -1,0 +1,25 @@
+# Daily aggregated stats
+
+royal_victoria_today:
+  hospital: royal_victoria
+  date: <%= Date.current %>
+  min_wait: 30
+  max_wait: 90
+  avg_wait: 52.5
+  sample_count: 48
+
+royal_victoria_yesterday:
+  hospital: royal_victoria
+  date: <%= 1.day.ago.to_date %>
+  min_wait: 25
+  max_wait: 85
+  avg_wait: 48.0
+  sample_count: 48
+
+antrim_today:
+  hospital: antrim
+  date: <%= Date.current %>
+  min_wait: 45
+  max_wait: 150
+  avg_wait: 95.0
+  sample_count: 48

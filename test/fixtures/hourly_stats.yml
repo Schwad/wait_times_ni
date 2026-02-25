@@ -1,0 +1,25 @@
+# Hourly aggregated stats
+
+royal_victoria_morning:
+  hospital: royal_victoria
+  hour: <%= Date.current.to_datetime + 8.hours %>
+  min_wait: 30
+  max_wait: 60
+  avg_wait: 42.0
+  sample_count: 4
+
+royal_victoria_afternoon:
+  hospital: royal_victoria
+  hour: <%= Date.current.to_datetime + 14.hours %>
+  min_wait: 40
+  max_wait: 80
+  avg_wait: 58.0
+  sample_count: 4
+
+antrim_evening:
+  hospital: antrim
+  hour: <%= Date.current.to_datetime + 20.hours %>
+  min_wait: 90
+  max_wait: 140
+  avg_wait: 115.0
+  sample_count: 4

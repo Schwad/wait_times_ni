@@ -1,1 +1,9 @@
-# See https://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://waittimesni.schwadlabs.io/sitemap.xml
+
+# Disallow internal paths
+Disallow: /rails/

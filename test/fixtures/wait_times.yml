@@ -1,9 +1,49 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+# Wait time samples
 
-one:
-  value: 1
-  hospital: one
+# Royal Victoria: falling trend (newer values are lower)
+royal_victoria_1:
+  value: 40
+  hospital: royal_victoria
+  created_at: <%= 5.minutes.ago %>
 
-two:
-  value: 1
-  hospital: two
+royal_victoria_2:
+  value: 45
+  hospital: royal_victoria
+  created_at: <%= 20.minutes.ago %>
+
+royal_victoria_3:
+  value: 60
+  hospital: royal_victoria
+  created_at: <%= 40.minutes.ago %>
+
+royal_victoria_4:
+  value: 65
+  hospital: royal_victoria
+  created_at: <%= 1.hour.ago %>
+
+# Antrim: rising trend (newer values are higher)
+antrim_1:
+  value: 130
+  hospital: antrim
+  created_at: <%= 5.minutes.ago %>
+
+antrim_2:
+  value: 120
+  hospital: antrim
+  created_at: <%= 20.minutes.ago %>
+
+antrim_3:
+  value: 100
+  hospital: antrim
+  created_at: <%= 40.minutes.ago %>
+
+antrim_4:
+  value: 95
+  hospital: antrim
+  created_at: <%= 1.hour.ago %>
+
+# Mater: single data point (stable)
+mater_1:
+  value: 25
+  hospital: mater
+  created_at: <%= 10.minutes.ago %>

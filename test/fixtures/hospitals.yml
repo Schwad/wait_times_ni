@@ -1,7 +1,19 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+# Northern Ireland Hospitals
 
-one:
-  name: MyText
+royal_victoria:
+  name: Royal Victoria Hospital
 
-two:
-  name: MyText
+antrim:
+  name: Antrim Area Hospital
+
+causeway:
+  name: Causeway Hospital
+
+craigavon:
+  name: Craigavon Area Hospital
+
+mater:
+  name: Mater Hospital
+
+ulster:
+  name: Ulster Hospital

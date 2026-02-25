@@ -1,6 +1,9 @@
 class HourlyStat < ApplicationRecord
   belongs_to :hospital
 
+  validates :hospital, :hour, presence: true
+  validates :hospital_id, uniqueness: { scope: :hour, message: "already has stats for this hour" }
+
   scope :for_date_range, ->(start_date, end_date) { where(hour: start_date.beginning_of_day..end_date.end_of_day) }
   scope :recent, ->(days = 7) { where("hour >= ?", days.days.ago.beginning_of_day) }
 
