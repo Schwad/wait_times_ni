@@ -10,13 +10,13 @@ class DataExtractionJob < ApplicationJob
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0'
   ].freeze
 
-  # Random sampling rate: 1 in 3 chance to actually fetch (33%)
+  # Random sampling rate: 70% chance to actually fetch
   # Makes scraping pattern look more organic, reduces server load
-  SAMPLE_RATE = 3
+  SAMPLE_RATE = 0.7
 
   def perform
-    # Random downsampling - only proceed 1 in SAMPLE_RATE times
-    unless rand(SAMPLE_RATE) == 0
+    # Random downsampling - only proceed SAMPLE_RATE% of the time
+    unless rand < SAMPLE_RATE
       Rails.logger.info "DataExtractionJob: Skipped (random downsample)"
       return
     end
