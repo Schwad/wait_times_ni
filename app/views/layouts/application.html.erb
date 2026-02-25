@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title><%= content_for(:title) || "Wait Times NI — Real-time A&E Wait Times" %></title>
+    <title><%= content_for(:title) || "Wait Times NI — A&E Wait Time Data" %></title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="turbo-cache-control" content="no-preview">
-    <meta name="description" content="<%= content_for?(:meta_description) ? content_for(:meta_description) : 'Real-time A&E wait times across Northern Ireland hospitals. Track emergency department waiting times, spot trends, and find the shortest wait near you.' %>">
+    <meta name="description" content="<%= content_for?(:meta_description) ? content_for(:meta_description) : 'Historical A&E wait time data across Northern Ireland hospitals. View trends and patterns in emergency department waiting times.' %>">
     
     <!-- Open Graph -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="<%= content_for(:title) || 'Wait Times NI — Real-time A&E Wait Times' %>">
-    <meta property="og:description" content="Real-time A&E wait times across Northern Ireland hospitals. Track emergency department waiting times and find the shortest wait near you.">
+    <meta property="og:title" content="<%= content_for(:title) || 'Wait Times NI — A&E Wait Time Data' %>">
+    <meta property="og:description" content="Historical A&E wait time data across Northern Ireland hospitals. View trends and patterns in emergency department waiting times.">
     <meta property="og:url" content="<%= request.original_url rescue 'https://waittimesni.schwadlabs.io' %>">
     <meta property="og:site_name" content="Wait Times NI">
     <meta property="og:image" content="<%= request.base_url rescue 'https://waittimesni.schwadlabs.io' %>/og-image.png">
@@ -20,8 +20,8 @@
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="<%= content_for(:title) || 'Wait Times NI — Real-time A&E Wait Times' %>">
-    <meta name="twitter:description" content="Real-time A&E wait times across Northern Ireland hospitals.">
+    <meta name="twitter:title" content="<%= content_for(:title) || 'Wait Times NI — A&E Wait Time Data' %>">
+    <meta name="twitter:description" content="Historical A&E wait time data across Northern Ireland hospitals.">
     <meta name="twitter:image" content="<%= request.base_url rescue 'https://waittimesni.schwadlabs.io' %>/og-image.png">
     
     <!-- Canonical URL -->
@@ -36,7 +36,7 @@
       "@context": "https://schema.org",
       "@type": "WebApplication",
       "name": "Wait Times NI",
-      "description": "Real-time A&E wait times across Northern Ireland hospitals",
+      "description": "Historical A&E wait time data across Northern Ireland hospitals",
       "url": "https://waittimesni.schwadlabs.io",
       "applicationCategory": "HealthApplication",
       "operatingSystem": "Web",
@@ -471,7 +471,7 @@
     <header role="banner">
       <div class="container">
         <h1>🏥 Wait Times NI</h1>
-        <p>Real-time A&E wait times across Northern Ireland hospitals</p>
+        <p>Historical A&E wait time data across Northern Ireland hospitals</p>
       </div>
     </header>
     
