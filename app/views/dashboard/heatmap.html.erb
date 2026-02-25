@@ -16,43 +16,12 @@
     <div id="heatmap-chart" style="min-height: 350px;"></div>
   </div>
   
-  <!-- Mobile: Day-by-day card view -->
+  <!-- Mobile: Condensed 4-hour batched heatmap -->
   <div class="heatmap-mobile">
     <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 16px;">
-      📱 Swipe through days to see hourly patterns
+      📱 4-hour averages • Full detail on desktop
     </p>
-    <% days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] %>
-    <% days.each do |day| %>
-      <% day_data = @heatmap_data.select { |d| d[:y] == day }.sort_by { |d| d[:x] } %>
-      <% max_wait = [@heatmap_data.map { |d| d[:v] }.max, 1].max %>
-      <details class="mobile-day-card">
-        <summary style="cursor: pointer; font-weight: 600;"><%= day %></summary>
-        <div style="margin-top: 12px;">
-          <% day_data.each do |hour_data| %>
-            <% wait = hour_data[:v] %>
-            <% level = wait <= 30 ? 'low' : wait <= 60 ? 'medium' : wait <= 120 ? 'high' : 'very-high' %>
-            <% width_pct = [(wait.to_f / 120 * 100), 100].min %>
-            <div class="mobile-hour-row">
-              <span class="mobile-hour-label"><%= sprintf("%02d:00", hour_data[:x]) %></span>
-              <div class="mobile-wait-bar">
-                <div class="mobile-wait-fill <%= level %>" style="width: <%= width_pct %>%;"></div>
-              </div>
-              <span class="mobile-wait-value" style="color: var(--<%= level == 'low' ? 'success' : level == 'medium' ? 'warning' : 'danger' %>);">
-                <%= wait %> min
-              </span>
-            </div>
-          <% end %>
-        </div>
-      </details>
-    <% end %>
-    
-    <!-- Mobile legend -->
-    <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; font-size: 0.8rem;">
-      <span><span style="display: inline-block; width: 12px; height: 12px; background: var(--success); border-radius: 2px;"></span> Low (≤30 min)</span>
-      <span><span style="display: inline-block; width: 12px; height: 12px; background: var(--warning); border-radius: 2px;"></span> Medium (31-60)</span>
-      <span><span style="display: inline-block; width: 12px; height: 12px; background: var(--danger); border-radius: 2px;"></span> High (61-120)</span>
-      <span><span style="display: inline-block; width: 12px; height: 12px; background: #7f1d1d; border-radius: 2px;"></span> Very High (120+)</span>
-    </div>
+    <div id="heatmap-chart-mobile" style="min-height: 300px;"></div>
   </div>
 </div>
 
@@ -92,63 +61,77 @@
 
 <script>
 document.addEventListener('turbo:load', function() {
-  var chartEl = document.querySelector("#heatmap-chart");
-  if (!chartEl) return;
-  chartEl.innerHTML = ''; // Clear any existing chart
   var rawData = <%= raw @heatmap_data.to_json %>;
-  
-  // Group by day
   var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  var series = days.map(function(day) {
-    var dayData = rawData.filter(function(d) { return d.y === day; });
-    return {
-      name: day,
-      data: dayData.map(function(d) { return { x: d.x + ':00', y: d.v }; })
-    };
-  });
   
-  var options = {
-    series: series,
-    chart: {
-      type: 'heatmap',
-      height: 350,
-      toolbar: { show: false }
-    },
-    dataLabels: {
-      enabled: true,
-      style: {
-        colors: ['#fff'],
-        fontSize: '10px'
-      }
-    },
-    colors: ["#2563eb"],
-    plotOptions: {
-      heatmap: {
-        shadeIntensity: 0.5,
-        colorScale: {
-          ranges: [
-            { from: 0, to: 30, name: 'Low', color: '#10b981' },
-            { from: 31, to: 60, name: 'Medium', color: '#f59e0b' },
-            { from: 61, to: 120, name: 'High', color: '#ef4444' },
-            { from: 121, to: 500, name: 'Very High', color: '#7f1d1d' }
-          ]
-        }
-      }
-    },
-    xaxis: {
-      type: 'category',
-      title: { text: 'Hour of Day' }
-    },
-    yaxis: {
-      title: { text: 'Day of Week' }
-    },
-    tooltip: {
-      y: {
-        formatter: function(val) { return val + ' minutes avg wait'; }
-      }
-    }
+  var colorScale = {
+    ranges: [
+      { from: 0, to: 30, name: 'Low', color: '#10b981' },
+      { from: 31, to: 60, name: 'Medium', color: '#f59e0b' },
+      { from: 61, to: 120, name: 'High', color: '#ef4444' },
+      { from: 121, to: 500, name: 'Very High', color: '#7f1d1d' }
+    ]
   };
 
-  new ApexCharts(document.querySelector("#heatmap-chart"), options).render();
+  // Desktop: Full 24-hour heatmap
+  var chartEl = document.querySelector("#heatmap-chart");
+  if (chartEl) {
+    chartEl.innerHTML = '';
+    var series = days.map(function(day) {
+      var dayData = rawData.filter(function(d) { return d.y === day; });
+      return {
+        name: day,
+        data: dayData.map(function(d) { return { x: d.x + ':00', y: d.v }; })
+      };
+    });
+    
+    var options = {
+      series: series,
+      chart: { type: 'heatmap', height: 350, toolbar: { show: false } },
+      dataLabels: { enabled: true, style: { colors: ['#fff'], fontSize: '10px' } },
+      colors: ["#2563eb"],
+      plotOptions: { heatmap: { shadeIntensity: 0.5, colorScale: colorScale } },
+      xaxis: { type: 'category', title: { text: 'Hour of Day' } },
+      yaxis: { title: { text: 'Day of Week' } },
+      tooltip: { y: { formatter: function(val) { return val + ' minutes avg wait'; } } }
+    };
+    new ApexCharts(chartEl, options).render();
+  }
+
+  // Mobile: 4-hour batched heatmap
+  var mobileChartEl = document.querySelector("#heatmap-chart-mobile");
+  if (mobileChartEl) {
+    mobileChartEl.innerHTML = '';
+    var batches = ['0-4', '4-8', '8-12', '12-16', '16-20', '20-24'];
+    var batchLabels = ['12am', '4am', '8am', '12pm', '4pm', '8pm'];
+    
+    var mobileSeries = days.map(function(day) {
+      var dayData = rawData.filter(function(d) { return d.y === day; });
+      var batchedData = batches.map(function(batch, idx) {
+        var startHour = idx * 4;
+        var hoursInBatch = dayData.filter(function(d) { 
+          return d.x >= startHour && d.x < startHour + 4; 
+        });
+        var avg = hoursInBatch.length > 0 
+          ? Math.round(hoursInBatch.reduce(function(sum, d) { return sum + d.v; }, 0) / hoursInBatch.length)
+          : 0;
+        return { x: batchLabels[idx], y: avg };
+      });
+      return { name: day, data: batchedData };
+    });
+    
+    var mobileOptions = {
+      series: mobileSeries,
+      chart: { type: 'heatmap', height: 300, toolbar: { show: false } },
+      dataLabels: { enabled: true, style: { colors: ['#fff'], fontSize: '11px', fontWeight: 600 } },
+      colors: ["#2563eb"],
+      plotOptions: { heatmap: { shadeIntensity: 0.5, colorScale: colorScale } },
+      xaxis: { type: 'category', labels: { style: { fontSize: '11px' } } },
+      yaxis: { labels: { style: { fontSize: '10px' } } },
+      tooltip: { y: { formatter: function(val) { return val + ' min avg'; } } },
+      legend: { show: false }
+    };
+    new ApexCharts(mobileChartEl, mobileOptions).render();
+  }
 });
 </script>
