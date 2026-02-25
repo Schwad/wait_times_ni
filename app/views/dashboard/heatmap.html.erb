@@ -58,7 +58,7 @@
 
 <div class="grid grid-2" style="margin-top: 20px;">
   <div class="card">
-    <h2>📊 Best Times to Visit</h2>
+    <h2>📊 Lowest Average Waits</h2>
     <div style="margin-top: 15px;">
       <% best_times = @heatmap_data.sort_by { |d| d[:v] }.first(5) %>
       <% best_times.each_with_index do |time, idx| %>
@@ -74,7 +74,7 @@
   </div>
   
   <div class="card">
-    <h2>⚠️ Busiest Times</h2>
+    <h2>📊 Highest Average Waits</h2>
     <div style="margin-top: 15px;">
       <% worst_times = @heatmap_data.sort_by { |d| -d[:v] }.first(5) %>
       <% worst_times.each_with_index do |time, idx| %>

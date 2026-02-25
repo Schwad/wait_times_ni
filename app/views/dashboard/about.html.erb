@@ -5,7 +5,6 @@
   <p>
     Wait Times NI tracks <strong>real-time A&E waiting times</strong> across all 
     <strong><%= @hospitals.count %> emergency departments</strong> in Northern Ireland.
-    Our goal is to help you make informed decisions about where to seek care.
   </p>
   <% if @total_readings > 0 %>
   <p style="margin-top: 15px;">
@@ -44,12 +43,16 @@
   </div>
 </div>
 
-<div class="card" style="border-left: 4px solid var(--warning);">
-  <h2>⚠️ Important Disclaimer</h2>
+<div class="card" style="border-left: 4px solid var(--danger); background: #fef2f2;">
+  <h2 style="color: var(--danger);">⚠️ Important Disclaimer</h2>
   <p>
-    <strong>This is not medical advice.</strong> Wait times shown are averages and may not reflect 
+    <strong>This is an independent project and is NOT affiliated with the NHS, NI Direct, 
+    the Department of Health, or any government body.</strong>
+  </p>
+  <p style="margin-top: 15px;">
+    <strong>This is not medical advice.</strong> Wait times shown are historical averages and may not reflect 
     current conditions. Actual wait times can vary significantly based on the severity of cases 
-    and staffing levels.
+    and staffing levels. This data is provided for informational purposes only.
   </p>
   <p style="margin-top: 15px;">
     <strong>In a medical emergency, always call 999.</strong> Do not delay seeking care based on 
