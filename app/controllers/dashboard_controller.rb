@@ -77,6 +77,13 @@ class DashboardController < ApplicationController
                                       .pluck(:hour, :avg_wait)
   end
 
+  def about
+    @hospitals = Hospital.all
+    @total_readings = WaitTime.count
+    @first_reading = WaitTime.minimum(:created_at)
+    @last_reading = WaitTime.maximum(:created_at)
+  end
+
   def api_data
     hospital = Hospital.find(params[:hospital_id])
     

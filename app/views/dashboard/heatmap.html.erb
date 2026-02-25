@@ -10,7 +10,50 @@
   <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.9rem;">
     Average wait times by day of week and hour. Darker colors indicate longer waits.
   </p>
-  <div id="heatmap-chart" style="min-height: 350px;"></div>
+  
+  <!-- Desktop: Full heatmap chart -->
+  <div class="heatmap-desktop">
+    <div id="heatmap-chart" style="min-height: 350px;"></div>
+  </div>
+  
+  <!-- Mobile: Day-by-day card view -->
+  <div class="heatmap-mobile">
+    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 16px;">
+      📱 Swipe through days to see hourly patterns
+    </p>
+    <% days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] %>
+    <% days.each do |day| %>
+      <% day_data = @heatmap_data.select { |d| d[:y] == day }.sort_by { |d| d[:x] } %>
+      <% max_wait = [@heatmap_data.map { |d| d[:v] }.max, 1].max %>
+      <details class="mobile-day-card">
+        <summary style="cursor: pointer; font-weight: 600;"><%= day %></summary>
+        <div style="margin-top: 12px;">
+          <% day_data.each do |hour_data| %>
+            <% wait = hour_data[:v] %>
+            <% level = wait <= 30 ? 'low' : wait <= 60 ? 'medium' : wait <= 120 ? 'high' : 'very-high' %>
+            <% width_pct = [(wait.to_f / 120 * 100), 100].min %>
+            <div class="mobile-hour-row">
+              <span class="mobile-hour-label"><%= sprintf("%02d:00", hour_data[:x]) %></span>
+              <div class="mobile-wait-bar">
+                <div class="mobile-wait-fill <%= level %>" style="width: <%= width_pct %>%;"></div>
+              </div>
+              <span class="mobile-wait-value" style="color: var(--<%= level == 'low' ? 'success' : level == 'medium' ? 'warning' : 'danger' %>);">
+                <%= wait %> min
+              </span>
+            </div>
+          <% end %>
+        </div>
+      </details>
+    <% end %>
+    
+    <!-- Mobile legend -->
+    <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; font-size: 0.8rem;">
+      <span><span style="display: inline-block; width: 12px; height: 12px; background: var(--success); border-radius: 2px;"></span> Low (≤30 min)</span>
+      <span><span style="display: inline-block; width: 12px; height: 12px; background: var(--warning); border-radius: 2px;"></span> Medium (31-60)</span>
+      <span><span style="display: inline-block; width: 12px; height: 12px; background: var(--danger); border-radius: 2px;"></span> High (61-120)</span>
+      <span><span style="display: inline-block; width: 12px; height: 12px; background: #7f1d1d; border-radius: 2px;"></span> Very High (120+)</span>
+    </div>
+  </div>
 </div>
 
 <div class="grid grid-2" style="margin-top: 20px;">

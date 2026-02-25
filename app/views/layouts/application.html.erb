@@ -141,19 +141,19 @@
       header {
         background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
         color: white;
-        padding: 30px 20px;
+        padding: 16px 20px;
         margin-bottom: 0;
       }
       
       header h1 {
-        font-size: 2rem;
+        font-size: 1.5rem;
         font-weight: 700;
-        margin-bottom: 5px;
+        margin-bottom: 2px;
       }
       
       header p {
         opacity: 0.9;
-        font-size: 1.1rem;
+        font-size: 0.95rem;
       }
       
       nav {
@@ -378,9 +378,81 @@
       }
       
       @media (max-width: 768px) {
-        header h1 { font-size: 1.5rem; }
+        header h1 { font-size: 1.25rem; }
+        header p { font-size: 0.85rem; }
         .stat-card .value { font-size: 1.5rem; }
         nav a { padding: 12px 15px; font-size: 0.875rem; }
+        
+        /* Hide desktop heatmap on mobile */
+        .heatmap-desktop { display: none; }
+        .heatmap-mobile { display: block; }
+      }
+      
+      @media (min-width: 769px) {
+        /* Show desktop heatmap, hide mobile */
+        .heatmap-desktop { display: block; }
+        .heatmap-mobile { display: none; }
+      }
+      
+      /* Mobile heatmap styles */
+      .mobile-day-card {
+        background: var(--card-bg);
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 12px;
+        border: 1px solid var(--border);
+      }
+      
+      .mobile-day-card h3 {
+        font-size: 1rem;
+        margin-bottom: 12px;
+        color: var(--text);
+      }
+      
+      .mobile-hour-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      
+      .mobile-hour-row:last-child {
+        border-bottom: none;
+      }
+      
+      .mobile-hour-label {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        width: 60px;
+      }
+      
+      .mobile-wait-bar {
+        flex: 1;
+        height: 24px;
+        background: var(--bg);
+        border-radius: 4px;
+        margin: 0 10px;
+        overflow: hidden;
+        position: relative;
+      }
+      
+      .mobile-wait-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.3s;
+      }
+      
+      .mobile-wait-fill.low { background: var(--success); }
+      .mobile-wait-fill.medium { background: var(--warning); }
+      .mobile-wait-fill.high { background: var(--danger); }
+      .mobile-wait-fill.very-high { background: #7f1d1d; }
+      
+      .mobile-wait-value {
+        font-size: 0.85rem;
+        font-weight: 600;
+        width: 50px;
+        text-align: right;
       }
     </style>
   </head>
@@ -406,6 +478,7 @@
         <%= link_to "Trends", trends_path, class: "#{action_name == 'trends' ? 'active' : ''}", "aria-current": (action_name == 'trends' ? 'page' : nil) %>
         <%= link_to "Compare", compare_path, class: "#{action_name == 'compare' ? 'active' : ''}", "aria-current": (action_name == 'compare' ? 'page' : nil) %>
         <%= link_to "Heatmap", heatmap_path, class: "#{action_name == 'heatmap' ? 'active' : ''}", "aria-current": (action_name == 'heatmap' ? 'page' : nil) %>
+        <%= link_to "About", about_path, class: "#{action_name == 'about' ? 'active' : ''}", "aria-current": (action_name == 'about' ? 'page' : nil) %>
       </div>
     </nav>
 

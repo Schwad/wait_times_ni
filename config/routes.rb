@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   get "compare", to: "dashboard#compare", as: :compare
   get "heatmap", to: "dashboard#heatmap", as: :heatmap
   get "live", to: "dashboard#live", as: :live
+  get "about", to: "dashboard#about", as: :about
   get "api/data", to: "dashboard#api_data", as: :api_data
   
   # Legacy route (keep old static pages working)

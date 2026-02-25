@@ -1,0 +1,93 @@
+<% content_for :title do %>About — Wait Times NI<% end %>
+
+<div class="card" style="margin-bottom: 30px;">
+  <h2>🏥 About Wait Times NI</h2>
+  <p>
+    Wait Times NI tracks <strong>real-time A&E waiting times</strong> across all 
+    <strong><%= @hospitals.count %> emergency departments</strong> in Northern Ireland.
+    Our goal is to help you make informed decisions about where to seek care.
+  </p>
+  <% if @total_readings > 0 %>
+  <p style="margin-top: 15px;">
+    We've collected <strong><%= number_with_delimiter(@total_readings) %> wait time readings</strong>
+    <% if @first_reading && @last_reading %>
+    from <%= @first_reading.strftime("%B %Y") %> to present.
+    <% end %>
+  </p>
+  <% end %>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <h2>📊 Data Source</h2>
+    <p>
+      All data comes from the official 
+      <a href="https://www.nidirect.gov.uk/articles/emergency-department-average-waiting-times" target="_blank" rel="noopener">
+        NI Direct Emergency Department Wait Times
+      </a> page, published by the Northern Ireland government.
+    </p>
+    <p style="margin-top: 15px;">
+      We check for updates every 15 minutes and store historical data to enable trend analysis 
+      and help identify patterns in A&E demand.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>🏨 Hospitals Covered</h2>
+    <div style="max-height: 200px; overflow-y: auto; margin-top: 10px;">
+      <% @hospitals.order(:name).each do |hospital| %>
+        <div style="padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.9rem;">
+          <%= hospital.name %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<div class="card" style="border-left: 4px solid var(--warning);">
+  <h2>⚠️ Important Disclaimer</h2>
+  <p>
+    <strong>This is not medical advice.</strong> Wait times shown are averages and may not reflect 
+    current conditions. Actual wait times can vary significantly based on the severity of cases 
+    and staffing levels.
+  </p>
+  <p style="margin-top: 15px;">
+    <strong>In a medical emergency, always call 999.</strong> Do not delay seeking care based on 
+    wait time information. A&E departments triage patients by urgency — if you have a serious 
+    condition, you will be seen faster regardless of the average wait.
+  </p>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <h2>🔍 What the Data Shows</h2>
+    <ul style="margin-left: 1.5rem; line-height: 1.8;">
+      <li><strong>Live Status</strong> — Current average wait at each A&E</li>
+      <li><strong>Trends</strong> — How wait times change over days/weeks</li>
+      <li><strong>Compare</strong> — Side-by-side hospital comparison</li>
+      <li><strong>Heatmap</strong> — Best/worst times to visit by hour and day</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>📈 Data Limitations</h2>
+    <ul style="margin-left: 1.5rem; line-height: 1.8; color: var(--text-muted);">
+      <li>Wait times are <strong>averages</strong>, not guarantees</li>
+      <li>Data may be delayed up to 15 minutes</li>
+      <li>Historical gaps may exist during system outages</li>
+      <li>Minor Injury Units have different scope than full A&E</li>
+    </ul>
+  </div>
+</div>
+
+<div class="card" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); border: none; color: white;">
+  <h2 style="color: white;">💡 About This Project</h2>
+  <p style="color: rgba(255,255,255,0.9);">
+    Wait Times NI is a <a href="https://schwadlabs.io" style="color: white; font-weight: 600;">SchwadLabs.io</a> 
+    public data project. We believe health information should be accessible, visual, and useful — 
+    not buried in hard-to-read government pages.
+  </p>
+  <p style="color: rgba(255,255,255,0.8); margin-top: 15px;">
+    Questions or feedback? Contact <a href="mailto:schwad@schwadlabs.io" style="color: white;">schwad@schwadlabs.io</a>
+  </p>
+</div>
