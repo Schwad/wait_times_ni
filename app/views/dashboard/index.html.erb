@@ -9,36 +9,11 @@
   </div>
 </div>
 
-<h2 style="margin-bottom: 20px; font-size: 1.5rem;">📍 Current Wait Times</h2>
+<h2 style="margin-bottom: 20px; font-size: 1.5rem;">📊 Historical Peak Wait Times</h2>
 
-<div class="live-grid">
-  <% @current_status.each do |status| %>
-    <% wait = status[:wait_time] || 0 %>
-    <% status_class = wait < 60 ? 'status-good' : (wait < 120 ? 'status-warning' : 'status-danger') %>
-    <% value_class = wait < 60 ? 'good' : (wait < 120 ? 'warning' : 'danger') %>
-    
-    <div class="hospital-card <%= status_class %>">
-      <div class="hospital-name"><%= status[:hospital].name %></div>
-      <div class="wait-time <%= value_class %>">
-        <%= wait || '—' %><span style="font-size: 1rem; font-weight: 400;"> min</span>
-      </div>
-      <div class="wait-label">
-        Current wait time
-        <% if status[:trend] == :rising %>
-          <span class="trend-indicator trend-rising">↑ Rising</span>
-        <% elsif status[:trend] == :falling %>
-          <span class="trend-indicator trend-falling">↓ Falling</span>
-        <% else %>
-          <span class="trend-indicator trend-stable">→ Stable</span>
-        <% end %>
-      </div>
-    </div>
-  <% end %>
-</div>
-
-<div class="grid grid-2" style="margin-top: 30px;">
+<div class="grid grid-2" style="margin-top: 20px;">
   <div class="card">
-    <h2>📊 Peak Wait Times (<%= @range %>)</h2>
+    <h2>🔴 Peak Wait Times (<%= @range %>)</h2>
     <div id="peak-chart" class="chart-container"></div>
   </div>
   

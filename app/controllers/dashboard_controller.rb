@@ -3,17 +3,8 @@ class DashboardController < ApplicationController
 
   def index
     @hospitals = Hospital.all.order(:name)
-    
-    # Current status - live data
-    @current_status = @hospitals.map do |h|
-      {
-        hospital: h,
-        wait_time: h.current_wait_time,
-        trend: h.trend_indicator
-      }
-    end
 
-    # Peak and average from pre-aggregated stats
+    # Peak and average from pre-aggregated stats (historical only - no live data)
     @peak_stats = DailyStat.joins(:hospital)
                            .for_date_range(@start_date, @end_date)
                            .group("hospitals.name")

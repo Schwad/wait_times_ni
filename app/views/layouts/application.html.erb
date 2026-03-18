@@ -477,10 +477,10 @@
     
     <nav role="navigation" aria-label="Main navigation">
       <div class="container" style="display: flex; gap: 5px;">
-        <%= link_to "Live Status", dashboard_path, class: "#{controller_name == 'dashboard' && action_name == 'index' ? 'active' : ''}", "aria-current": (controller_name == 'dashboard' && action_name == 'index' ? 'page' : nil) %>
         <%= link_to "Trends", trends_path, class: "#{action_name == 'trends' ? 'active' : ''}", "aria-current": (action_name == 'trends' ? 'page' : nil) %>
         <%= link_to "Compare", compare_path, class: "#{action_name == 'compare' ? 'active' : ''}", "aria-current": (action_name == 'compare' ? 'page' : nil) %>
         <%= link_to "Heatmap", heatmap_path, class: "#{action_name == 'heatmap' ? 'active' : ''}", "aria-current": (action_name == 'heatmap' ? 'page' : nil) %>
+        <%= link_to "Peak Wait Times", dashboard_path, class: "#{controller_name == 'dashboard' && action_name == 'index' ? 'active' : ''}", "aria-current": (controller_name == 'dashboard' && action_name == 'index' ? 'page' : nil) %>
         <%= link_to "About", about_path, class: "#{action_name == 'about' ? 'active' : ''}", "aria-current": (action_name == 'about' ? 'page' : nil) %>
       </div>
     </nav>

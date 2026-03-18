@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
-  # New dashboard
-  root to: "dashboard#index"
+  # Trends is the new default landing page (no live data)
+  root to: "dashboard#trends"
   
   get "dashboard", to: "dashboard#index", as: :dashboard
   get "trends", to: "dashboard#trends", as: :trends
